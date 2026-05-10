@@ -65,7 +65,7 @@
     background-color: white;
 }
 
-#play {
+#save {
     width: 100px;
     height: 50px;
     background-color: red;
@@ -75,4 +75,10 @@
     width: 100px;
     height: 50px;
     background-color: white;
+}
+
+#play {
+    width: 200px;
+    height: 50px;
+    background-color: red;
 }
