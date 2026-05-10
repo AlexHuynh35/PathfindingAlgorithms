@@ -14,6 +14,14 @@
     gap: 20px;
 }
 
+.v_padding {
+    height: 50px;
+}
+
+.h_padding {
+    width: 50px;
+}
+
 #selection_container {
     display: flex;
     justify-content: center;
@@ -29,28 +37,42 @@
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    padding: 5px;
+    border-radius: 30px;
+    width: 75px;
 }
 
-.selection_button {
+.selection_icon {
     width: 20px;
     height: 20px;
     margin-right: 5px;
+    border: 1px black solid;
 }
 
-#start {
+#start_icon {
     background-color: yellow;
 }
 
-#end {
+#end_icon {
     background-color: green;
 }
 
-#wall {
+#wall_icon {
     background-color: gray;
+}
+
+#clear_icon {
+    background-color: white;
 }
 
 #play {
     width: 100px;
     height: 50px;
     background-color: red;
+}
+
+#reset {
+    width: 100px;
+    height: 50px;
+    background-color: white;
 }

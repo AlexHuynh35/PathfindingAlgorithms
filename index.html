@@ -12,24 +12,34 @@
         <h2>Draw Your Map</h2>
         <div class="h_container">
             <div class="grid" id="map_container"></div>
+            <div class="h_padding"></div>
             <div class="v_container">
                 <div id="selection_container">
-                    <div class="selection">
-                        <button class="selection_button" id="start"></button>
+                    <div class="selection" id="start">
+                        <div class="selection_icon" id="start_icon"></div>
                         <p>Start</p>
                     </div>
-                    <div class="selection">
-                        <button class="selection_button" id="end"></button>
+                    <div class="selection" id="end">
+                        <div class="selection_icon" id="end_icon"></div>
                         <p>End</p>
                     </div>
-                    <div class="selection">
-                        <button class="selection_button" id="wall"></button>
+                    <div class="selection" id="wall">
+                        <div class="selection_icon" id="wall_icon"></div>
                         <p>Wall</p>
                     </div>
+                    <div class="selection" id="clear">
+                        <div class="selection_icon" id="clear_icon"></div>
+                        <p>Clear</p>
+                    </div>
                 </div>
-                <button id="play">Play</button>
+                <div class="h_container">
+                    <button id="play">Play</button>
+                    <button id="reset">Reset</button>
+                </div>
             </div>
         </div>
+
+        <div class="v_padding"></div>
 
         <h2>Compare the Two Algorithms</h2>
         <div class="h_container">
@@ -37,11 +47,14 @@
                 <h3>Dijkstra's</h3>
                 <div class="grid" id="d_container"></div>
             </div>
+            <div class="h_padding"></div>
             <div class="v_container">
                 <h3>A Star</h3>
                 <div class="grid" id="a_container"></div>
             </div>
         </div>
+
+        <div class="v_padding"></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="script.js"></script>

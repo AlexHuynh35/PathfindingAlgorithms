@@ -1,4 +1,11 @@
-function makeGrid(width, length, size) {
+width = 10;
+length = 10;
+size = 25;
+currentSelection = "start";
+start = [0, 0];
+end = [length - 1, length - 1];
+
+function makeGrid() {
     $(".grid").css({
         "display": "grid",
         "grid-template-columns": "repeat(" + width + ", 1fr)",
@@ -16,6 +23,27 @@ function makeGrid(width, length, size) {
         "border": "1px black solid",
         "height": size,
         "width": size
+    });
+
+    $(`#map_box-${start[0]}_${start[1]}`).css({
+        "background-color": "yellow"
+    });
+
+    $(`#map_box-${end[0]}_${end[1]}`).css({
+        "background-color": "green"
+    });
+
+    $(`#start`).css({
+        "background-color": "gray",
+    });
+    $(`#end`).css({
+        "background-color": "",
+    });
+    $(`#wall`).css({
+        "background-color": "",
+    });
+    $(`#clear`).css({
+        "background-color": "",
     });
 
     $("#d_container").html("");
@@ -45,4 +73,129 @@ function makeGrid(width, length, size) {
     });
 }
 
-makeGrid(10, 10, 25);
+makeGrid();
+
+$("#start").click(function () {
+    currentSelection = "start";
+    $(`#start`).css({
+        "background-color": "gray",
+    });
+    $(`#end`).css({
+        "background-color": "",
+    });
+    $(`#wall`).css({
+        "background-color": "",
+    });
+    $(`#clear`).css({
+        "background-color": "",
+    });
+});
+
+$("#end").click(function () {
+    currentSelection = "end";
+    $(`#start`).css({
+        "background-color": "",
+    });
+    $(`#end`).css({
+        "background-color": "gray",
+    });
+    $(`#wall`).css({
+        "background-color": "",
+    });
+    $(`#clear`).css({
+        "background-color": "",
+    });
+});
+
+$("#wall").click(function () {
+    currentSelection = "wall";
+    $(`#start`).css({
+        "background-color": "",
+    });
+    $(`#end`).css({
+        "background-color": "",
+    });
+    $(`#wall`).css({
+        "background-color": "gray",
+    });
+    $(`#clear`).css({
+        "background-color": "",
+    });
+});
+
+$("#clear").click(function () {
+    currentSelection = "clear";
+    $(`#start`).css({
+        "background-color": "",
+    });
+    $(`#end`).css({
+        "background-color": "",
+    });
+    $(`#wall`).css({
+        "background-color": "",
+    });
+    $(`#clear`).css({
+        "background-color": "gray",
+    });
+});
+
+$('[id^="map_box-"]').on('click', function () {
+    boxID = this.id;
+    separateID = boxID.split("-");
+    coord = separateID[1].split("_");
+
+    if (currentSelection === "start") {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
+            $(`#map_box-${coord[0]}_${coord[1]}`).css({
+                "background-color": "yellow"
+            });
+            $(`#map_box-${start[0]}_${start[1]}`).css({
+                "background-color": ""
+            });
+            start = [coord[0], coord[1]]
+        }
+    } else if (currentSelection === "end") {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
+            $(`#map_box-${coord[0]}_${coord[1]}`).css({
+                "background-color": "green"
+            });
+            $(`#map_box-${end[0]}_${end[1]}`).css({
+                "background-color": ""
+            });
+            end = [coord[0], coord[1]]
+        }
+    } else if (currentSelection === "wall") {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
+            $(`#map_box-${coord[0]}_${coord[1]}`).css({
+                "background-color": "gray"
+            });
+        }
+    } else {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
+            $(`#map_box-${coord[0]}_${coord[1]}`).css({
+                "background-color": ""
+            });
+        }
+    }
+});
+
+$("#reset").click(function () {
+    start = [0, 0];
+    end = [length - 1, length - 1];
+
+    for (var x = 0; x < width; x++) {
+        for (var y = 0; y < length; y++) {
+            $(`#map_box-${x}_${y}`).css({
+                "background-color": ""
+            });
+        }
+    }
+
+    $(`#map_box-${start[0]}_${start[1]}`).css({
+        "background-color": "yellow"
+    });
+
+    $(`#map_box-${end[0]}_${end[1]}`).css({
+        "background-color": "green"
+    });
+});
