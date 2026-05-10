@@ -1,0 +1,56 @@
+.v_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.h_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
+}
+
+#selection_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid black;
+}
+
+.selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.selection_button {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+#start {
+    background-color: yellow;
+}
+
+#end {
+    background-color: green;
+}
+
+#wall {
+    background-color: gray;
+}
+
+#play {
+    width: 100px;
+    height: 50px;
+    background-color: red;
+}

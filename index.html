@@ -1,11 +1,50 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Pathfinding: Dijkstra's vs. A Star</title>
-        <link type="text/css" rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="script.js"></script>
-    </body>
+
+<head>
+    <title>Pathfinding: Dijkstra's vs. A Star</title>
+    <link type="text/css" rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="v_container">
+        <h1>Pathfinding: Dijkstra's vs. A Star</h1>
+        <h2>Draw Your Map</h2>
+        <div class="h_container">
+            <div class="grid" id="map_container"></div>
+            <div class="v_container">
+                <div id="selection_container">
+                    <div class="selection">
+                        <button class="selection_button" id="start"></button>
+                        <p>Start</p>
+                    </div>
+                    <div class="selection">
+                        <button class="selection_button" id="end"></button>
+                        <p>End</p>
+                    </div>
+                    <div class="selection">
+                        <button class="selection_button" id="wall"></button>
+                        <p>Wall</p>
+                    </div>
+                </div>
+                <button id="play">Play</button>
+            </div>
+        </div>
+
+        <h2>Compare the Two Algorithms</h2>
+        <div class="h_container">
+            <div class="v_container">
+                <h3>Dijkstra's</h3>
+                <div class="grid" id="d_container"></div>
+            </div>
+            <div class="v_container">
+                <h3>A Star</h3>
+                <div class="grid" id="a_container"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
 </html>
