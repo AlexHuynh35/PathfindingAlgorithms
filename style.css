@@ -23,10 +23,9 @@
 }
 
 #selection_container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 20px;
     padding: 20px;
     border: 1px solid black;
@@ -40,6 +39,8 @@
     padding: 5px;
     border-radius: 30px;
     width: 75px;
+    cursor: default;
+    user-select: none;
 }
 
 .selection_icon {
@@ -47,6 +48,8 @@
     height: 20px;
     margin-right: 5px;
     border: 1px black solid;
+    align-content: center;
+    text-align: center;
 }
 
 #start_icon {
