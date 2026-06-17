@@ -1,27 +1,30 @@
 var width = 10;
-var length = 10;
+var height = 10;
 var size = 25;
 var currentSelection = "start";
-var start = [0, 0];
-var end = [length - 1, length - 1];
-var grid = {};
+
+var gridInfo;
+var dPathfinding;
+var aPathfinding;
 
 function makeGrid() {
+    gridInfo = new GridInfo(width, height);
+    var start = gridInfo.getStart();
+    var end = gridInfo.getEnd();
+
+    dPathfinding = new Dijkstras(width, height);
+    aPathfinding = new Astar(width, height);
+
     $(".grid").css({
         "display": "grid",
         "grid-template-columns": "repeat(" + width + ", 1fr)",
-        "grid-template-rows": "repeat(" + length + ", 1fr)"
+        "grid-template-rows": "repeat(" + height + ", 1fr)"
     });
 
     $("#map_container").html("");
     for (var x = 0; x < width; x++) {
-        grid[`x${x}`] = {};
-        for (var y = 0; y < length; y++) {
+        for (var y = 0; y < height; y++) {
             $("#map_container").append(`<div class='map_box' id='map_box-${x}_${y}'></div>`);
-            grid[`x${x}`][`y${y}`] = {
-                weight: 1,
-                wall: false
-            }
         }
     }
     $(".map_box").css({
@@ -61,7 +64,7 @@ function makeGrid() {
 
     $("#d_container").html("");
     for (var x = 0; x < width; x++) {
-        for (var y = 0; y < length; y++) {
+        for (var y = 0; y < height; y++) {
             $("#d_container").append(`<div class='d_box' id='d_box-${x}_${y}'></div>`);
         }
     }
@@ -83,7 +86,7 @@ function makeGrid() {
 
     $("#a_container").html("");
     for (var x = 0; x < width; x++) {
-        for (var y = 0; y < length; y++) {
+        for (var y = 0; y < height; y++) {
             $("#a_container").append(`<div class='a_box' id='a_box-${x}_${y}'></div>`);
         }
     }
@@ -239,9 +242,13 @@ $("#clear").click(function () {
 });
 
 $('[id^="map_box-"]').on('click', function () {
-    boxID = this.id;
-    separateID = boxID.split("-");
-    coord = separateID[1].split("_");
+    var boxID = this.id;
+    var separateID = boxID.split("-");
+    var coord = separateID[1].split("_");
+
+    var start = gridInfo.getStart();
+    var end = gridInfo.getEnd();
+    var grid = gridInfo.getGrid();
 
     if (currentSelection === "start") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
@@ -252,9 +259,8 @@ $('[id^="map_box-"]').on('click', function () {
             $(`#map_box-${start[0]}_${start[1]}`).css({
                 "background-color": ""
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight = 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = false;
-            start = [coord[0], coord[1]]
+            gridInfo.updateTile(coord[0], coord[1], 1, false);
+            gridInfo.updateStart(coord[0], coord[1]);
         }
     } else if (currentSelection === "end") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
@@ -265,9 +271,8 @@ $('[id^="map_box-"]').on('click', function () {
             $(`#map_box-${end[0]}_${end[1]}`).css({
                 "background-color": ""
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight = 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = false;
-            end = [coord[0], coord[1]]
+            gridInfo.updateTile(coord[0], coord[1], 1, false);
+            gridInfo.updateEnd(coord[0], coord[1]);
         }
     } else if (currentSelection === "wall") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
@@ -275,30 +280,27 @@ $('[id^="map_box-"]').on('click', function () {
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
                 "background-color": "gray"
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight = 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = true;
+            gridInfo.updateTile(coord[0], coord[1], 1, true);
         }
     } else if (currentSelection === "cost_up") {
-        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[`x${coord[0]}`][`y${coord[1]}`].weight < 10)) {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[coord[0]][coord[1]].getWeight() < 10)) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text(
-                grid[`x${coord[0]}`][`y${coord[1]}`].weight + 1
+                grid[coord[0]][coord[1]].getWeight() + 1
             );
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
                 "background-color": ""
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight += 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = false;
+            gridInfo.updateTile(coord[0], coord[1], grid[coord[0]][coord[1]].getWeight() + 1, false);
         }
     } else if (currentSelection === "cost_down") {
-        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[`x${coord[0]}`][`y${coord[1]}`].weight > 1)) {
+        if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[coord[0]][coord[1]].getWeight() > 1)) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text(
-                grid[`x${coord[0]}`][`y${coord[1]}`].weight - 1 === 1 ? "" : grid[`x${coord[0]}`][`y${coord[1]}`].weight - 1
+                grid[coord[0]][coord[1]].getWeight() - 1 === 1 ? "" : grid[coord[0]][coord[1]].getWeight() - 1
             );
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
                 "background-color": ""
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight -= 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = false;
+            gridInfo.updateTile(coord[0], coord[1], grid[coord[0]][coord[1]].getWeight() - 1, false);
         }
     } else {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
@@ -306,16 +308,25 @@ $('[id^="map_box-"]').on('click', function () {
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
                 "background-color": ""
             });
-            grid[`x${coord[0]}`][`y${coord[1]}`].weight = 1;
-            grid[`x${coord[0]}`][`y${coord[1]}`].wall = false;
+            gridInfo.updateTile(coord[0], coord[1], 1, false);
         }
     }
 });
 
 $("#save").click(function () {
+    var start = gridInfo.getStart();
+    var end = gridInfo.getEnd();
+    var grid = gridInfo.getGrid();
+
+    dPathfinding.updateGrid(start, end, grid);
+    aPathfinding.updateGrid(start, end, grid);
+
     for (var x = 0; x < width; x++) {
-        for (var y = 0; y < length; y++) {
-            if (grid[`x${x}`][`y${y}`].wall) {
+        for (var y = 0; y < height; y++) {
+            console.log(x);
+            console.log(y);
+            console.log(grid[x][y].getWall());
+            if (grid[x][y].getWall()) {
                 $(`#d_box-${x}_${y}`).css({
                     "background-color": "gray"
                 });
@@ -331,12 +342,12 @@ $("#save").click(function () {
                 });
             }
 
-            if (grid[`x${x}`][`y${y}`].weight > 1) {
+            if (grid[x][y].getWeight() > 1) {
                 $(`#d_box-${x}_${y}`).text(
-                    grid[`x${x}`][`y${y}`].weight
+                    grid[x][y].getWeight()
                 );
                 $(`#a_box-${x}_${y}`).text(
-                    grid[`x${x}`][`y${y}`].weight
+                    grid[x][y].getWeight()
                 );
             } else {
                 $(`#d_box-${x}_${y}`).text("");
@@ -361,20 +372,16 @@ $("#save").click(function () {
 });
 
 $("#reset").click(function () {
-    start = [0, 0];
-    end = [length - 1, length - 1];
+    gridInfo.resetGridInfo();
+    var start = gridInfo.getStart();
+    var end = gridInfo.getEnd();
 
     for (var x = 0; x < width; x++) {
-        grid[`x${x}`] = {};
-        for (var y = 0; y < length; y++) {
+        for (var y = 0; y < height; y++) {
             $(`#map_box-${x}_${y}`).text("");
             $(`#map_box-${x}_${y}`).css({
                 "background-color": ""
             });
-            grid[`x${x}`][`y${y}`] = {
-                weight: 1,
-                wall: false
-            }
         }
     }
 
