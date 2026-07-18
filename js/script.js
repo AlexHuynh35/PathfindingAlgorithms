@@ -323,9 +323,6 @@ $("#save").click(function () {
 
     for (var x = 0; x < width; x++) {
         for (var y = 0; y < height; y++) {
-            console.log(x);
-            console.log(y);
-            console.log(grid[x][y].getWall());
             if (grid[x][y].getWall()) {
                 $(`#d_box-${x}_${y}`).css({
                     "background-color": "gray"
@@ -393,3 +390,103 @@ $("#reset").click(function () {
         "background-color": "green"
     });
 });
+
+$("#play").click(function () {
+    $("#play").prop("disabled", true);
+    $("#d_done").text("(...)");
+    $("#d_done").css({
+        "color": "black"
+    });
+    $("#a_done").text("(...)");
+    $("#a_done").css({
+        "color": "black"
+    });
+    pathFind();
+});
+
+const wait = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+
+async function pathFind() {
+    dPathfinding.resetCurrentGrid();
+
+    dPathfinding.performFirstStep();
+
+    while (!dPathfinding.done) {
+        dPathfinding.performNextStep();
+
+        var dPathStart = dPathfinding.currentGridInfo.getStart();
+        var dPathEnd = dPathfinding.currentGridInfo.getEnd();
+        var dPathGrid = dPathfinding.currentGridInfo.getGrid();
+
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                if (dPathGrid[x][y].getWall()) {
+                    $(`#d_box-${x}_${y}`).css({
+                        "background-color": "gray"
+                    });
+                } else if (dPathGrid[x][y].getVisited()) {
+                    $(`#d_box-${x}_${y}`).css({
+                        "background-color": "blue"
+                    });
+                } else {
+                    $(`#d_box-${x}_${y}`).css({
+                        "background-color": ""
+                    });
+                }
+
+                if (dPathGrid[x][y].getWeight() > 1) {
+                    $(`#d_box-${x}_${y}`).text(
+                        dPathGrid[x][y].getWeight()
+                    );
+                } else {
+                    $(`#d_box-${x}_${y}`).text("");
+                }
+            }
+        }
+
+        $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
+            "background-color": "yellow"
+        });
+        $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
+            "background-color": "green"
+        });
+
+        await wait(0.01);
+    }
+
+    if (dPathfinding.foundPath) {
+        dPathfinding.performLastStep();
+
+        var dPathStart = dPathfinding.currentGridInfo.getStart();
+        var dPathEnd = dPathfinding.currentGridInfo.getEnd();
+        var dPath = dPathfinding.getPath();
+
+        for (var i = 0; i < dPath.length; i++) {
+            var tile = dPath[i];
+            $(`#d_box-${tile[0]}_${tile[1]}`).css({
+                "background-color": "teal"
+            });
+        }
+
+        $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
+            "background-color": "yellow"
+        });
+        $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
+            "background-color": "green"
+        });
+
+        $("#d_done").text("");
+        $("#d_done").append("&check;");
+        $("#d_done").css({
+            "color": "green"
+        });
+    } else {
+        $("#d_done").text("");
+        $("#d_done").append("&cross;");
+        $("#d_done").css({
+            "color": "red"
+        });
+    }
+
+    $("#play").prop("disabled", false);
+}

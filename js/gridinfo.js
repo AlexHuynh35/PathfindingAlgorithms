@@ -3,6 +3,8 @@ class Tile {
         this.weight = 1;
         this.wall = false;
         this.visited = false;
+        this.xPrev = null;
+        this.yPrev = null;
     }
 
     getWeight() {
@@ -17,10 +19,16 @@ class Tile {
         return this.visited;
     }
 
+    getPrevious() {
+        return [this.xPrev, this.yPrev];
+    }
+
     resetTile() {
         this.weight = 1;
         this.wall = false;
         this.visited = false;
+        this.xPrev = null;
+        this.yPrev = null;
     }
 
     updateTile(weight, wall) {
@@ -30,6 +38,11 @@ class Tile {
 
     visitTile() {
         this.visited = true;
+    }
+
+    setPrevious(xPrev, yPrev) {
+        this.xPrev = xPrev;
+        this.yPrev = yPrev;
     }
 }
 
@@ -83,6 +96,10 @@ class GridInfo {
 
     visitTile(x, y) {
         this.grid[x][y].visitTile();
+    }
+
+    setPrevious(x, y, xPrev, yPrev) {
+        this.grid[x][y].setPrevious(xPrev, yPrev);
     }
 
 
