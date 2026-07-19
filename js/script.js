@@ -2,6 +2,7 @@ var width = 10;
 var height = 10;
 var size = 25;
 var currentSelection = "start";
+var speed = 0.01
 
 var gridInfo;
 var dPathfinding;
@@ -9,11 +10,11 @@ var aPathfinding;
 
 function makeGrid() {
     gridInfo = new GridInfo(width, height);
-    var start = gridInfo.getStart();
-    var end = gridInfo.getEnd();
+    let start = gridInfo.getStart();
+    let end = gridInfo.getEnd();
 
-    dPathfinding = new Dijkstras(width, height);
-    aPathfinding = new Astar(width, height);
+    dPathfinding = new Pathfinding(width, height, 0);
+    aPathfinding = new Pathfinding(width, height, 2);
 
     $(".grid").css({
         "display": "grid",
@@ -22,8 +23,8 @@ function makeGrid() {
     });
 
     $("#map_container").html("");
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             $("#map_container").append(`<div class='map_box' id='map_box-${x}_${y}'></div>`);
         }
     }
@@ -63,8 +64,8 @@ function makeGrid() {
     });
 
     $("#d_container").html("");
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             $("#d_container").append(`<div class='d_box' id='d_box-${x}_${y}'></div>`);
         }
     }
@@ -85,8 +86,8 @@ function makeGrid() {
     });
 
     $("#a_container").html("");
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             $("#a_container").append(`<div class='a_box' id='a_box-${x}_${y}'></div>`);
         }
     }
@@ -242,15 +243,15 @@ $("#clear").click(function () {
 });
 
 $('[id^="map_box-"]').on('click', function () {
-    var boxID = this.id;
-    var separateID = boxID.split("-");
-    var coord = separateID[1].split("_");
+    let boxID = this.id;
+    let separateID = boxID.split("-");
+    let coord = separateID[1].split("_");
 
-    var start = gridInfo.getStart();
-    var end = gridInfo.getEnd();
-    var grid = gridInfo.getGrid();
+    let start = gridInfo.getStart();
+    let end = gridInfo.getEnd();
+    let grid = gridInfo.getGrid();
 
-    if (currentSelection === "start") {
+    if (currentSelection == "start") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text("");
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
@@ -262,7 +263,7 @@ $('[id^="map_box-"]').on('click', function () {
             gridInfo.updateTile(coord[0], coord[1], 1, false);
             gridInfo.updateStart(coord[0], coord[1]);
         }
-    } else if (currentSelection === "end") {
+    } else if (currentSelection == "end") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text("");
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
@@ -274,7 +275,7 @@ $('[id^="map_box-"]').on('click', function () {
             gridInfo.updateTile(coord[0], coord[1], 1, false);
             gridInfo.updateEnd(coord[0], coord[1]);
         }
-    } else if (currentSelection === "wall") {
+    } else if (currentSelection == "wall") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1])) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text("");
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
@@ -282,7 +283,7 @@ $('[id^="map_box-"]').on('click', function () {
             });
             gridInfo.updateTile(coord[0], coord[1], 1, true);
         }
-    } else if (currentSelection === "cost_up") {
+    } else if (currentSelection == "cost_up") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[coord[0]][coord[1]].getWeight() < 10)) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text(
                 grid[coord[0]][coord[1]].getWeight() + 1
@@ -292,10 +293,10 @@ $('[id^="map_box-"]').on('click', function () {
             });
             gridInfo.updateTile(coord[0], coord[1], grid[coord[0]][coord[1]].getWeight() + 1, false);
         }
-    } else if (currentSelection === "cost_down") {
+    } else if (currentSelection == "cost_down") {
         if ((coord[0] != start[0] || coord[1] != start[1]) && (coord[0] != end[0] || coord[1] != end[1]) && (grid[coord[0]][coord[1]].getWeight() > 1)) {
             $(`#map_box-${coord[0]}_${coord[1]}`).text(
-                grid[coord[0]][coord[1]].getWeight() - 1 === 1 ? "" : grid[coord[0]][coord[1]].getWeight() - 1
+                grid[coord[0]][coord[1]].getWeight() - 1 == 1 ? "" : grid[coord[0]][coord[1]].getWeight() - 1
             );
             $(`#map_box-${coord[0]}_${coord[1]}`).css({
                 "background-color": ""
@@ -314,15 +315,15 @@ $('[id^="map_box-"]').on('click', function () {
 });
 
 $("#save").click(function () {
-    var start = gridInfo.getStart();
-    var end = gridInfo.getEnd();
-    var grid = gridInfo.getGrid();
+    let start = gridInfo.getStart();
+    let end = gridInfo.getEnd();
+    let grid = gridInfo.getGrid();
 
     dPathfinding.updateGrid(start, end, grid);
     aPathfinding.updateGrid(start, end, grid);
 
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             if (grid[x][y].getWall()) {
                 $(`#d_box-${x}_${y}`).css({
                     "background-color": "gray"
@@ -366,15 +367,25 @@ $("#save").click(function () {
     $(`#a_box-${end[0]}_${end[1]}`).css({
         "background-color": "green"
     });
+
+    $("#d_done").text("");
+    $("#d_done").css({
+        "color": "black"
+    });
+
+    $("#a_done").text("");
+    $("#a_done").css({
+        "color": "black"
+    });
 });
 
 $("#reset").click(function () {
     gridInfo.resetGridInfo();
-    var start = gridInfo.getStart();
-    var end = gridInfo.getEnd();
+    let start = gridInfo.getStart();
+    let end = gridInfo.getEnd();
 
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             $(`#map_box-${x}_${y}`).text("");
             $(`#map_box-${x}_${y}`).css({
                 "background-color": ""
@@ -392,100 +403,186 @@ $("#reset").click(function () {
 });
 
 $("#play").click(function () {
-    $("#play").prop("disabled", true);
-    $("#d_done").text("(...)");
-    $("#d_done").css({
-        "color": "black"
-    });
-    $("#a_done").text("(...)");
-    $("#a_done").css({
-        "color": "black"
-    });
     pathFind();
 });
 
 const wait = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
 async function pathFind() {
+    $("#play").prop("disabled", true);
+
+    $("#d_done").text("(...)");
+    $("#d_done").css({
+        "color": "black"
+    });
+
+    $("#a_done").text("(...)");
+    $("#a_done").css({
+        "color": "black"
+    });
+
     dPathfinding.resetCurrentGrid();
+    aPathfinding.resetCurrentGrid();
 
     dPathfinding.performFirstStep();
+    aPathfinding.performFirstStep();
 
-    while (!dPathfinding.done) {
-        dPathfinding.performNextStep();
+    while (!dPathfinding.done || !aPathfinding.done) {
+        if (!dPathfinding.done) {
+            if (!dPathfinding.reachLast) {
+                dPathfinding.performNextStep();
 
-        var dPathStart = dPathfinding.currentGridInfo.getStart();
-        var dPathEnd = dPathfinding.currentGridInfo.getEnd();
-        var dPathGrid = dPathfinding.currentGridInfo.getGrid();
+                let dPathStart = dPathfinding.currentGridInfo.getStart();
+                let dPathEnd = dPathfinding.currentGridInfo.getEnd();
+                let dPathGrid = dPathfinding.currentGridInfo.getGrid();
 
-        for (var x = 0; x < width; x++) {
-            for (var y = 0; y < height; y++) {
-                if (dPathGrid[x][y].getWall()) {
-                    $(`#d_box-${x}_${y}`).css({
-                        "background-color": "gray"
-                    });
-                } else if (dPathGrid[x][y].getVisited()) {
-                    $(`#d_box-${x}_${y}`).css({
-                        "background-color": "blue"
-                    });
-                } else {
-                    $(`#d_box-${x}_${y}`).css({
-                        "background-color": ""
-                    });
+                for (let x = 0; x < width; x++) {
+                    for (let y = 0; y < height; y++) {
+                        if (dPathGrid[x][y].getWall()) {
+                            $(`#d_box-${x}_${y}`).css({
+                                "background-color": "gray"
+                            });
+                        } else if (dPathGrid[x][y].getVisited()) {
+                            $(`#d_box-${x}_${y}`).css({
+                                "background-color": "blue"
+                            });
+                        } else {
+                            $(`#d_box-${x}_${y}`).css({
+                                "background-color": ""
+                            });
+                        }
+
+                        if (dPathGrid[x][y].getWeight() > 1) {
+                            $(`#d_box-${x}_${y}`).text(
+                                dPathGrid[x][y].getWeight()
+                            );
+                        } else {
+                            $(`#d_box-${x}_${y}`).text("");
+                        }
+                    }
                 }
 
-                if (dPathGrid[x][y].getWeight() > 1) {
-                    $(`#d_box-${x}_${y}`).text(
-                        dPathGrid[x][y].getWeight()
-                    );
+                $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
+                    "background-color": "yellow"
+                });
+                $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
+                    "background-color": "green"
+                });
+            } else {
+                dPathfinding.performLastStep();
+
+                let dPathStart = dPathfinding.currentGridInfo.getStart();
+                let dPathEnd = dPathfinding.currentGridInfo.getEnd();
+                let dPath = dPathfinding.getPath();
+
+                if (dPath.length > 0) {
+                    for (let i = 0; i < dPath.length; i++) {
+                        let tile = dPath[i];
+                        $(`#d_box-${tile[0]}_${tile[1]}`).css({
+                            "background-color": "teal"
+                        });
+                    }
+
+                    $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
+                        "background-color": "yellow"
+                    });
+                    $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
+                        "background-color": "green"
+                    });
+
+                    $("#d_done").text("");
+                    $("#d_done").append("&check;");
+                    $("#d_done").css({
+                        "color": "green"
+                    });
                 } else {
-                    $(`#d_box-${x}_${y}`).text("");
+                    $("#d_done").text("");
+                    $("#d_done").append("&cross;");
+                    $("#d_done").css({
+                        "color": "red"
+                    });
                 }
             }
         }
 
-        $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
-            "background-color": "yellow"
-        });
-        $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
-            "background-color": "green"
-        });
+        if (!aPathfinding.done) {
+            if (!aPathfinding.reachLast) {
+                aPathfinding.performNextStep();
 
-        await wait(0.01);
-    }
+                let aPathStart = aPathfinding.currentGridInfo.getStart();
+                let aPathEnd = aPathfinding.currentGridInfo.getEnd();
+                let aPathGrid = aPathfinding.currentGridInfo.getGrid();
 
-    if (dPathfinding.foundPath) {
-        dPathfinding.performLastStep();
+                for (let x = 0; x < width; x++) {
+                    for (let y = 0; y < height; y++) {
+                        if (aPathGrid[x][y].getWall()) {
+                            $(`#a_box-${x}_${y}`).css({
+                                "background-color": "gray"
+                            });
+                        } else if (aPathGrid[x][y].getVisited()) {
+                            $(`#a_box-${x}_${y}`).css({
+                                "background-color": "blue"
+                            });
+                        } else {
+                            $(`#a_box-${x}_${y}`).css({
+                                "background-color": ""
+                            });
+                        }
 
-        var dPathStart = dPathfinding.currentGridInfo.getStart();
-        var dPathEnd = dPathfinding.currentGridInfo.getEnd();
-        var dPath = dPathfinding.getPath();
+                        if (aPathGrid[x][y].getWeight() > 1) {
+                            $(`#a_box-${x}_${y}`).text(
+                                aPathGrid[x][y].getWeight()
+                            );
+                        } else {
+                            $(`#a_box-${x}_${y}`).text("");
+                        }
+                    }
+                }
 
-        for (var i = 0; i < dPath.length; i++) {
-            var tile = dPath[i];
-            $(`#d_box-${tile[0]}_${tile[1]}`).css({
-                "background-color": "teal"
-            });
+                $(`#a_box-${aPathStart[0]}_${aPathStart[1]}`).css({
+                    "background-color": "yellow"
+                });
+                $(`#a_box-${aPathEnd[0]}_${aPathEnd[1]}`).css({
+                    "background-color": "green"
+                });
+            } else {
+                aPathfinding.performLastStep();
+
+                let aPathStart = aPathfinding.currentGridInfo.getStart();
+                let aPathEnd = aPathfinding.currentGridInfo.getEnd();
+                let aPath = aPathfinding.getPath();
+
+                if (aPath.length > 0) {
+                    for (let i = 0; i < aPath.length; i++) {
+                        let tile = aPath[i];
+                        $(`#a_box-${tile[0]}_${tile[1]}`).css({
+                            "background-color": "teal"
+                        });
+                    }
+
+                    $(`#a_box-${aPathStart[0]}_${aPathStart[1]}`).css({
+                        "background-color": "yellow"
+                    });
+                    $(`#a_box-${aPathEnd[0]}_${aPathEnd[1]}`).css({
+                        "background-color": "green"
+                    });
+
+                    $("#a_done").text("");
+                    $("#a_done").append("&check;");
+                    $("#a_done").css({
+                        "color": "green"
+                    });
+                } else {
+                    $("#a_done").text("");
+                    $("#a_done").append("&cross;");
+                    $("#a_done").css({
+                        "color": "red"
+                    });
+                }
+            }
         }
 
-        $(`#d_box-${dPathStart[0]}_${dPathStart[1]}`).css({
-            "background-color": "yellow"
-        });
-        $(`#d_box-${dPathEnd[0]}_${dPathEnd[1]}`).css({
-            "background-color": "green"
-        });
-
-        $("#d_done").text("");
-        $("#d_done").append("&check;");
-        $("#d_done").css({
-            "color": "green"
-        });
-    } else {
-        $("#d_done").text("");
-        $("#d_done").append("&cross;");
-        $("#d_done").css({
-            "color": "red"
-        });
+        await wait(speed);
     }
 
     $("#play").prop("disabled", false);

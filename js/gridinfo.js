@@ -108,16 +108,16 @@ class GridInfo {
     }
 
     resetGrid() {
-        for (var i = 0; i < this.width; i++) {
-            for (var j = 0; j < this.height; j++) {
+        for (let i = 0; i < this.width; i++) {
+            for (let j = 0; j < this.height; j++) {
                 this.resetTile(i, j);
             }
         }
     }
 
     updateGrid(grid) {
-        for (var i = 0; i < this.width; i++) {
-            for (var j = 0; j < this.height; j++) {
+        for (let i = 0; i < this.width; i++) {
+            for (let j = 0; j < this.height; j++) {
                 this.resetTile(i, j);
                 this.updateTile(i, j, grid[i][j].weight, grid[i][j].wall);
             }

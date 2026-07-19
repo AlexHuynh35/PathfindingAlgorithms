@@ -1,18 +1,15 @@
-class PriorityQueue {
-    constructor(popSmallestFirst) {
+class MinPriorityQueue {
+    constructor() {
         this.queue = [];
-        this.popSmallestFirst = popSmallestFirst;
     }
 
-    enqueue(weight, xPos, yPos) {
+    enqueue(gWeight, hWeight, xPos, yPos) {
         this.queue.push(
-            { w: weight, x: xPos, y: yPos }
+            { g: gWeight, h: hWeight, x: xPos, y: yPos }
         );
-        if (this.popSmallestFirst) {
-            this.queue.sort((a, b) => b.w - a.w);
-        } else {
-            this.queue.sort((a, b) => a.w - b.w);
-        }
+        this.queue.sort((a, b) => {
+            return ((b.g + b.h) - (a.g + a.h)) || (b.h - a.h);
+        });
     }
 
     dequeue() {
@@ -20,28 +17,22 @@ class PriorityQueue {
     }
 
     isEmpty() {
-        return this.queue.length === 0;
+        return this.queue.length == 0;
     }
 
     emptyQueue() {
         this.queue = [];
     }
 
-    updateWeight(weight, xPos, yPos) {
-        let tile = this.queue.find(item => item.x === xPos && item.y === yPos);
+    updateWeight(gWeight, xPos, yPos) {
+        let tile = this.queue.find(item => item.x == xPos && item.y == yPos);
         if (tile) {
-            if (this.popSmallestFirst) {
-                if (weight < tile.w) {
-                    tile.w = weight;
-                    this.queue.sort((a, b) => b.w - a.w);
-                    return true;
-                }
-            } else {
-                if (weight > tile.w) {
-                    tile.w = weight;
-                    this.queue.sort((a, b) => a.w - b.w);
-                    return true;
-                }
+            if (gWeight < tile.g) {
+                tile.g = gWeight;
+                this.queue.sort((a, b) => {
+                    return ((b.g + b.h) - (a.g + a.h)) || (b.h - a.h);
+                });
+                return true;
             }
         }
         return false;
