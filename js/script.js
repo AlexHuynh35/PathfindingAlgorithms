@@ -2,7 +2,8 @@ var width = 10;
 var height = 10;
 var size = 25;
 var currentSelection = "start";
-var speed = 0.01
+var speed = [0.5, 0.2, 0.1, 0.05];
+var currentSpeed = 1;
 
 var gridInfo;
 var dPathfinding;
@@ -105,6 +106,10 @@ function makeGrid() {
     });
     $(`#a_box-${end[0]}_${end[1]}`).css({
         "background-color": "green"
+    });
+
+    $(`#speed-${currentSpeed}`).css({
+        "background-color": "red"
     });
 }
 
@@ -402,6 +407,22 @@ $("#reset").click(function () {
     });
 });
 
+$('[id^="speed-"]').on('click', function () {
+    let boxID = this.id;
+    let separateID = boxID.split("-");
+
+    currentSpeed = separateID[1];
+    for (let i = 0; i < speed.length; i++) {
+        $(`#speed-${i}`).css({
+            "background-color": "white"
+        });
+    }
+
+    $(`#speed-${currentSpeed}`).css({
+        "background-color": "red"
+    });
+});
+
 $("#play").click(function () {
     pathFind();
 });
@@ -410,6 +431,7 @@ const wait = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1
 
 async function pathFind() {
     $("#play").prop("disabled", true);
+    $("#save").prop("disabled", true);
 
     $("#d_done").text("(...)");
     $("#d_done").css({
@@ -582,8 +604,9 @@ async function pathFind() {
             }
         }
 
-        await wait(speed);
+        await wait(speed[currentSpeed]);
     }
 
     $("#play").prop("disabled", false);
+    $("#save").prop("disabled", false);
 }
